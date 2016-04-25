@@ -59,9 +59,16 @@ computeAllPossibleDistances (Path fs) = zip swaps ds
 format :: Path -> Path
 format = gotoLower . startFrom1
 
+loopUntil :: (Path, Float) -> Float -> (Path, Float)
+loopUntil (argPath, argDistance) threshold -- 10330 is a good threshold
+  | argDistance < threshold = (argPath, argDistance)
+  | otherwise = (loopUntil currMin threshold)
+  where currMin = (minimumBy (comparing snd) (computeAllPossibleDistances argPath))
+
 main = do
   x <- readFile "input.txt"
   let fs = Path . map parse . zip [1..] . tail . lines $ x
-  print (distanceTraveled fs)
-  let answer = minimumBy (comparing snd) (computeAllPossibleDistances fs)
-  print (format (fst answer))
+  --print (distanceTraveled fs)
+  print (loopUntil (fs, (distanceTraveled fs)) 10330)
+  --let answer = minimumBy (comparing snd) (computeAllPossibleDistances fs)
+  --print (format (fst answer))
